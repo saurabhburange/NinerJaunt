@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">NinerJaunt</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="niner_jaunt">Niner Jaunt</string>
+    <string name="submit">Submit</string>
+    <string name="destination">Destination</string>
+    <string name="starting_point">Starting Point</string>
+    <string name="button">Button</string>
+    <string name="change_map">Change Map</string>
+
+
+    <string-array name="buildings">
+        <item>Baseball Field</item>
+        <item>Bioinformatics</item>
+        <item>Current Location</item>
+        <item>Duke Hall</item>
+        <item>EPIC</item>
+        <item>Grigg Hall</item>
+        <item>Motorsports Research</item>
+        <item>PORTAL</item>
+    </string-array>
+
+
+</resources>
