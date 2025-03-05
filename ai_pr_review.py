@@ -48,7 +48,6 @@ def call_vertex_ai(pr_data, commit_message=None):
     PR Data: {pr_data}
     """
 
-
     response = model.generate_content(prompt)
 
     return response.text
