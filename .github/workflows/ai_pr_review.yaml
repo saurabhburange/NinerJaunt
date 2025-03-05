@@ -1,0 +1,81 @@
+name: AI PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  ai_review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Install Google Cloud SDK
+        run: |
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 --decode > gcp-key.json
+          gcloud auth activate-service-account --key-file=gcp-key.json
+          gcloud config set project carbide-acre-451700-g8
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh
+
+      - name: Get PR Diff and Commit Message
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          REPO=${{ github.repository }}
+
+          echo "Fetching PR diff for #$PR_NUMBER from $REPO"
+          gh pr diff $PR_NUMBER > pr_diff.txt
+          
+          echo "PR diff saved"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Debug File Structure
+        run: ls -R $GITHUB_WORKSPACE
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run AI Review
+        run: python $GITHUB_WORKSPACE/ai_pr_review.py pr_diff.txt
+
+      - name: Get Existing PR Comments
+        id: get-comments
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          gh api repos/${{ github.repository }}/issues/${PR_NUMBER}/comments > comments.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete Existing AI Comment
+        run: |
+          COMMENT_ID=$(jq -r '.[] | select(.body | contains("🤖.")) | .id' comments.json)
+          if [ -n "$COMMENT_ID" ] && [ "$COMMENT_ID" != "null" ]; then
+            echo "Deleting previous AI comment with ID: $COMMENT_ID"
+            gh api --method DELETE "/repos/${{ github.repository }}/issues/comments/$COMMENT_ID"
+          else
+            echo "No previous AI comment found."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  
+      - name: Comment AI Review on PR
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          AI_FEEDBACK=$(cat ai_feedback.md)
+          gh pr comment $PR_NUMBER --body "### 🤖.$AI_FEEDBACK"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
