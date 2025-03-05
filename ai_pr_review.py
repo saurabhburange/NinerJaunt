@@ -11,11 +11,11 @@ def clean_text(text):
     text = re.sub(r'\*', '-', text)
     return text.strip()
 
-# Set Google Cloud authentication
+# Set Google Cloud authentication.
 keyfile_path = os.path.join(os.getenv("GITHUB_WORKSPACE", ""), "gcp-key.json")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = keyfile_path
 
-# Google Cloud Config
+# Google Cloud Config.
 PROJECT_ID = "carbide-acre-451700-g8"
 LOCATION = "us-central1"
 MODEL_NAME = "gemini-pro"
@@ -47,7 +47,6 @@ def call_vertex_ai(pr_data, commit_message=None):
 
     PR Data: {pr_data}
     """
-
 
     response = model.generate_content(prompt)
 

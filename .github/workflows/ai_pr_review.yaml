@@ -61,7 +61,7 @@ jobs:
 
       - name: Delete Existing AI Comment
         run: |
-          COMMENT_ID=$(jq -r '.[] | select(.body | contains("🤖.")) | .id' comments.json)
+          COMMENT_ID=$(jq -r '.[] | select(.body | contains("🤖 AI Code Review Feedback 🚀")) | .id' comments.json)
           if [ -n "$COMMENT_ID" ] && [ "$COMMENT_ID" != "null" ]; then
             echo "Deleting previous AI comment with ID: $COMMENT_ID"
             gh api --method DELETE "/repos/${{ github.repository }}/issues/comments/$COMMENT_ID"
@@ -76,6 +76,6 @@ jobs:
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
           AI_FEEDBACK=$(cat ai_feedback.md)
-          gh pr comment $PR_NUMBER --body "### 🤖.$AI_FEEDBACK"
+          gh pr comment $PR_NUMBER --body "$AI_FEEDBACK"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
