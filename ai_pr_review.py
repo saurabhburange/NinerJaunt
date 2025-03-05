@@ -3,7 +3,6 @@ import sys
 import json
 import vertexai
 from vertexai.generative_models import GenerativeModel
-import textwrap
 import re
 
 def clean_text(text):
@@ -25,12 +24,30 @@ def call_vertex_ai(pr_data, commit_message=None):
     vertexai.init(project=PROJECT_ID, location=LOCATION)
     model = GenerativeModel(MODEL_NAME)
 
-
-    print(pr_data, 'log 1')
+    # prompt = f"""
+    # You are an AI code reviewer, Give me a small consise summary and any suggestions. Make it short. PR data - {pr_data}.
+    # """
 
     prompt = f"""
-    You are an AI code reviewer, Give me a small consise summary and any suggestions. Make it short. PR data - {pr_data}.
+    You are an AI code reviewer. Provide a **structured** and **concise** review in the following format:  
+
+    ### 🤖 AI Code Review Feedback 🚀  
+
+    #### **Summary:**  
+    - [Brief overview of the changes]  
+
+    #### **Suggestions:**  
+    - [List of any improvements or best practices]  
+
+    #### **Specific Areas for Improvement:**  
+    - Line XX: [Suggested change]  
+    - Line XX: [Suggested change]  
+
+    Keep it **short**, **consistent**, and **to the point**. Do not include unnecessary details.  
+
+    PR Data: {pr_data}
     """
+
 
     response = model.generate_content(prompt)
 
